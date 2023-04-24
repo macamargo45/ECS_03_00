@@ -8,6 +8,38 @@
     },
     "enemy_spawn_events": [
         {
+            "time": 0.0,
+            "enemy_type": "TypeHunter",
+            "position": {
+                "x": 560,
+                "y": 180
+            }
+        },
+        {
+            "time": 0.0,
+            "enemy_type": "TypeHunter",
+            "position": {
+                "x": 305,
+                "y": 300
+            }
+        },
+        {
+            "time": 0.0,
+            "enemy_type": "TypeHunter",
+            "position": {
+                "x": 40,
+                "y": 180
+            }
+        },
+        {
+            "time": 0.0,
+            "enemy_type": "TypeHunter",
+            "position": {
+                "x": 305,
+                "y": 20
+            }
+        },
+        {
             "time": 3.0,
             "enemy_type": "TypeA",
             "position": {

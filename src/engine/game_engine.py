@@ -1,6 +1,7 @@
 import json
 import pygame
 import esper
+from src.ecs.systems.s_animation import system_animation
 
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
 from src.ecs.systems.s_collision_enemy_bullet import system_collision_enemy_bullet
@@ -12,6 +13,10 @@ from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
+
+from src.ecs.systems.s_player_state import system_player_state
+from src.ecs.systems.s_explosion_kill import system_explosion_kill
+from src.ecs.systems.s_enemy_hunter_state import system_enemy_hunter_state
 
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.c_transform import CTransform
@@ -55,6 +60,8 @@ class GameEngine:
             self.player_cfg = json.load(player_file)
         with open("assets/cfg/bullet.json") as bullet_file:
             self.bullet_cfg = json.load(bullet_file)
+        with open("assets/cfg/explosion.json") as explosion_file:
+            self.explosion_cfg = json.load(explosion_file)
 
     def run(self) -> None:
         self._create()
@@ -93,8 +100,16 @@ class GameEngine:
         system_screen_player(self.ecs_world, self.screen)
         system_screen_bullet(self.ecs_world, self.screen)
 
-        system_collision_enemy_bullet(self.ecs_world)
-        system_collision_player_enemy(self.ecs_world, self._player_entity, self.level_01_cfg)
+        system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
+        system_collision_player_enemy(self.ecs_world, self._player_entity,
+                                      self.level_01_cfg, self.explosion_cfg)
+
+        system_explosion_kill(self.ecs_world)
+
+        system_player_state(self.ecs_world)
+        system_enemy_hunter_state(self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
+
+        system_animation(self.ecs_world, self.delta_time)
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
@@ -132,4 +147,4 @@ class GameEngine:
 
         if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
             create_bullet(self.ecs_world, c_input.mouse_pos, self._player_c_t.pos,
-                          self._player_c_s.surf.get_size(), self.bullet_cfg)
+                          self._player_c_s.area.size, self.bullet_cfg)
